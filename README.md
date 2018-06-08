@@ -54,6 +54,6 @@ python3 infer_aff.py --infer_list [voc12/val.txt | voc12/train.txt] --voc12_root
 #### Random Walk with AffinityNet
 TBD
 
-#### Segmentation Segmentation
+#### Semantic Segmentation
 TBD
 
