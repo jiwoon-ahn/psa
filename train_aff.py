@@ -24,7 +24,7 @@ if __name__ == '__main__':
     parser.add_argument("--train_list", default="voc12/train_aug.txt", type=str)
     parser.add_argument("--val_list", default="voc12/val.txt", type=str)
     parser.add_argument("--session_name", default="vgg_aff", type=str)
-    parser.add_argument("--crop_size", default=256, type=int)
+    parser.add_argument("--crop_size", default=448, type=int)
     parser.add_argument("--weights", required=True, type=str)
     parser.add_argument("--voc12_root", required=True, type=str)
     parser.add_argument("--la_crf_dir", required=True, type=str)
@@ -96,8 +96,6 @@ if __name__ == '__main__':
 
         for iter, pack in enumerate(train_data_loader):
 
-            # -------- training ------- #
-
             aff = model.forward(pack[0])
 
             bg_label = pack[1][0].cuda(non_blocking=True)
@@ -120,7 +118,7 @@ if __name__ == '__main__':
 
             avg_meter.add({
                 'loss': loss.item(),
-                'bg_loss': bg_loss.item(), 'fg_loss': bg_loss.item(), 'neg_loss': neg_loss.item(),
+                'bg_loss': bg_loss.item(), 'fg_loss': fg_loss.item(), 'neg_loss': neg_loss.item(),
                 'bg_cnt': bg_count.item(), 'fg_cnt': fg_count.item(), 'neg_cnt': neg_count.item()
             })
 

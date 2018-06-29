@@ -10,12 +10,12 @@ class Net(network.resnet38d.Net):
     def __init__(self):
         super(Net, self).__init__()
 
-        self.f8_3 = torch.nn.Conv2d(512, 128, 1, bias=False)
-        self.f8_4 = torch.nn.Conv2d(1024, 256, 1, bias=False)
-        self.f8_5 = torch.nn.Conv2d(4096, 512, 1, bias=False)
+        self.f8_3 = torch.nn.Conv2d(512, 64, 1, bias=False)
+        self.f8_4 = torch.nn.Conv2d(1024, 128, 1, bias=False)
+        self.f8_5 = torch.nn.Conv2d(4096, 256, 1, bias=False)
 
-        self.f9 = torch.nn.Conv2d(896, 896, 1, bias=False)
-
+        self.f9 = torch.nn.Conv2d(448, 448, 1, bias=False)
+        
         torch.nn.init.kaiming_normal_(self.f8_3.weight)
         torch.nn.init.kaiming_normal_(self.f8_4.weight)
         torch.nn.init.kaiming_normal_(self.f8_5.weight)
@@ -25,13 +25,11 @@ class Net(network.resnet38d.Net):
 
         self.from_scratch_layers = [self.f8_3, self.f8_4, self.f8_5, self.f9]
 
-        self.predefined_featuresize = int(256//8)
+        self.predefined_featuresize = int(448//8)
         self.ind_from, self.ind_to = pyutils.get_indices_of_pairs(radius=5, size=(self.predefined_featuresize, self.predefined_featuresize))
         self.ind_from = torch.from_numpy(self.ind_from); self.ind_to = torch.from_numpy(self.ind_to)
 
         return
-
-
 
     def forward(self, x, to_dense=False):
 
@@ -40,7 +38,6 @@ class Net(network.resnet38d.Net):
         f8_3 = F.elu(self.f8_3(d['conv4']))
         f8_4 = F.elu(self.f8_4(d['conv5']))
         f8_5 = F.elu(self.f8_5(d['conv6']))
-
         x = F.elu(self.f9(torch.cat([f8_3, f8_4, f8_5], dim=1)))
 
         if x.size(2) == self.predefined_featuresize and x.size(3) == self.predefined_featuresize:
@@ -84,7 +81,7 @@ class Net(network.resnet38d.Net):
 
         for m in self.modules():
 
-            if (isinstance(m, nn.Conv2d) or isinstance(m, nn.BatchNorm2d)):
+            if (isinstance(m, nn.Conv2d) or isinstance(m, nn.modules.normalization.GroupNorm)):
 
                 if m.weight.requires_grad:
                     if m in self.from_scratch_layers:

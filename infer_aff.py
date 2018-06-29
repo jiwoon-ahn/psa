@@ -56,7 +56,7 @@ if __name__ == '__main__':
     parser.add_argument("--num_workers", default=8, type=int)
     parser.add_argument("--cam_dir", required=True, type=str)
     parser.add_argument("--voc12_root", required=True, type=str)
-    parser.add_argument("--alpha", default=256, type=int)
+    parser.add_argument("--alpha", default=16, type=int)
     parser.add_argument("--out_rw", required=True, type=str)
     parser.add_argument("--beta", default=8, type=int)
     parser.add_argument("--logt", default=8, type=int)

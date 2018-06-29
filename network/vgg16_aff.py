@@ -10,14 +10,14 @@ class Net(network.vgg16d.Net):
     def __init__(self):
         super(Net, self).__init__(fc6_dilation=4)
 
-        self.f8_3 = torch.nn.Conv2d(512, 128, 1, bias=False)
-        self.f8_4 = torch.nn.Conv2d(512, 256, 1, bias=False)
-        self.f8_5 = torch.nn.Conv2d(1024, 512, 1, bias=False)
-        self.bn8_3 = nn.BatchNorm2d(128)
-        self.bn8_4 = nn.BatchNorm2d(256)
-        self.bn8_5 = nn.BatchNorm2d(512)
+        self.f8_3 = nn.Conv2d(512, 64, 1, bias=False)
+        self.f8_4 = nn.Conv2d(512, 128, 1, bias=False)
+        self.f8_5 = nn.Conv2d(1024, 256, 1, bias=False)
+        self.gn8_3 = nn.modules.normalization.GroupNorm(8, 64)
+        self.gn8_4 = nn.modules.normalization.GroupNorm(16, 128)
+        self.gn8_5 = nn.modules.normalization.GroupNorm(32, 256)
 
-        self.f9 = torch.nn.Conv2d(896, 896, 1, bias=False)
+        self.f9 = torch.nn.Conv2d(448, 448, 1, bias=False)
 
         torch.nn.init.kaiming_normal_(self.f8_3.weight)
         torch.nn.init.kaiming_normal_(self.f8_4.weight)
@@ -25,9 +25,9 @@ class Net(network.vgg16d.Net):
         torch.nn.init.xavier_uniform_(self.f9.weight, gain=4)
 
         self.not_training = [self.conv1_1, self.conv1_2, self.conv2_1, self.conv2_2]
-        self.from_scratch_layers = [self.f8_3, self.f8_4, self.f8_5, self.bn8_3, self.bn8_4, self.bn8_5, self.f9]
+        self.from_scratch_layers = [self.f8_3, self.f8_4, self.f8_5, self.f9]
 
-        self.predefined_featuresize = int(256//8)
+        self.predefined_featuresize = int(448//8)
         self.ind_from, self.ind_to = pyutils.get_indices_of_pairs(5, (self.predefined_featuresize, self.predefined_featuresize))
         self.ind_from = torch.from_numpy(self.ind_from); self.ind_to = torch.from_numpy(self.ind_to)
 
@@ -38,9 +38,9 @@ class Net(network.vgg16d.Net):
 
         d = super().forward_as_dict(x)
 
-        f8_3 = F.elu(self.bn8_3(self.f8_3(d['conv4'])))
-        f8_4 = F.elu(self.bn8_4(self.f8_4(d['conv5'])))
-        f8_5 = F.elu(self.bn8_5(self.f8_5(d['conv5fc'])))
+        f8_3 = F.elu(self.gn8_3(self.f8_3(d['conv4'])))
+        f8_4 = F.elu(self.gn8_4(self.f8_4(d['conv5'])))
+        f8_5 = F.elu(self.gn8_5(self.f8_5(d['conv5fc'])))
 
         x = torch.cat([f8_3, f8_4, f8_5], dim=1)
         x = F.elu(self.f9(x))
@@ -84,7 +84,7 @@ class Net(network.vgg16d.Net):
 
         for m in self.modules():
 
-            if (isinstance(m, nn.Conv2d) or isinstance(m, nn.BatchNorm2d)):
+            if (isinstance(m, nn.Conv2d) or isinstance(m, nn.modules.normalization.GroupNorm)):
 
                 if m.weight.requires_grad:
                     if m in self.from_scratch_layers:
