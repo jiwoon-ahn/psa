@@ -11,6 +11,18 @@ We have developed a framework based on AffinityNet to generate accurate segmenta
 
 >*Our code was first implemented in Tensorflow at the time of CVPR 2018 submssion, and later we migrated to PyTorch. Minor details have been changed since then.
 
+## Citation
+
+```
+@InProceedings{Ahn_2018_CVPR,
+author = {Ahn, Jiwoon and Kwak, Suha},
+title = {Learning Pixel-Level Semantic Affinity With Image-Level Supervision for Weakly Supervised Semantic Segmentation},
+booktitle = {The IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+month = {June},
+year = {2018}
+}
+```
+
 ## Prerequisite
 * PyTorch 0.4 and Torchvision
 * PASCAL VOC 2012 Dataset
@@ -33,7 +45,7 @@ python3 infer_cls.py --infer_list voc12/train_aug.txt --voc12_root [your_voc12_r
 #### 3. Train AffinityNet with the labels
 
 ```bash
-python3 train_aff.py --lr 0.07 --batch_size 8 --max_epoches 8 --crop_size 256 --voc12_root [your_voc12_root_folder] --network [network.vgg16_aff | network.resnet38_aff] --weights [your_weights_file] --wt_dec 5e-4 --la_crf_dir [your_output_folder] --ha_crf_dir [your_output_folder]
+python3 train_aff.py --lr 0.1 --batch_size 8 --max_epoches 8 --crop_size 448 --voc12_root [your_voc12_root_folder] --network [network.vgg16_aff | network.resnet38_aff] --weights [your_weights_file] --wt_dec 5e-4 --la_crf_dir [your_output_folder] --ha_crf_dir [your_output_folder]
 ```
 
 #### 4. Perform Random Walks on CAMs
@@ -47,13 +59,20 @@ python3 infer_aff.py --infer_list [voc12/val.txt | voc12/train.txt] --voc12_root
 
 | Model         | Train (mIoU)    | Val (mIoU)    | |
 | ------------- |:-------------:|:-----:|:-----:|
-| VGG-16        | 48.9 |  46.6 | [[Weights]](https://drive.google.com/file/d/1Dh5EniRN7FSVaYxSmcwvPq_6AIg-P8EH/view?usp=sharing) |
+| VGG-16        | 48.9 | 46.6 | [[Weights]](https://drive.google.com/file/d/1Dh5EniRN7FSVaYxSmcwvPq_6AIg-P8EH/view?usp=sharing) |
 | ResNet-38     | 47.7 | 47.2 | [[Weights]](https://drive.google.com/file/d/1xESB7017zlZHqxEWuh1Rb89UhjTGIKOA/view?usp=sharing) |
 | ResNet-38     | 48.0 | 46.8 | CVPR submission |
 
 #### Random Walk with AffinityNet
-TBD
+
+| Model         | alpha | Train (mIoU)    | Val (mIoU)    | |
+| ------------- |:-----:|:---------------:|:-------------:|:-----:|
+| VGG-16        | 4/16/32 | 59.6 | 54.0 | [[Weights]](https://drive.google.com/file/d/10ue1B20Q51aQ53T93RiaiKETlklzo4jp/view?usp=sharing) |
+| ResNet-38     | 4/16/32 | 61.0 | 60.2 | [[Weights]](https://drive.google.com/open?id=1mFvTH3siw0SS0vqPH0o9N3cI_ISQacwt) |
+| ResNet-38     | 4/16/24 | 58.1 | 57.0 | CVPR submission |
+
+>*beta=8, gamma=5, t=256 for all settings
 
 #### Semantic Segmentation
-TBD
 
+TBD
