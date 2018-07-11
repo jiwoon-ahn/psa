@@ -42,6 +42,13 @@ python3 train_cls.py --lr 0.1 --batch_size 16 --max_epoches 15 --crop_size 448 -
 python3 infer_cls.py --infer_list voc12/train_aug.txt --voc12_root [your_voc12_root_folder] --network [network.vgg16_cls | network.resnet38_cls] --weights [your_weights_file] --out_cam [desired_folder] --out_la_crf [desired_folder] --out_ha_crf [desired_folder]
 ```
 
+
+#### (Optional) Check the accuracy of CAMs.
+```bash
+python3 infer_cls.py --infer_list voc12/val.txt --voc12_root [your_voc12_root_folder] --network network.resnet38_cls --weights res38_cls.pth --out_cam_pred [desired_folder]
+```
+
+
 #### 3. Train AffinityNet with the labels
 
 ```bash
@@ -72,7 +79,3 @@ python3 infer_aff.py --infer_list [voc12/val.txt | voc12/train.txt] --voc12_root
 | ResNet-38     | 4/16/24 | 58.1 | 57.0 | CVPR submission |
 
 >*beta=8, gamma=5, t=256 for all settings
-
-#### Semantic Segmentation
-
-TBD
