@@ -9,10 +9,12 @@ Learning Pixel-level Semantic Affinity with Image-level Supervision for Weakly S
 
 We have developed a framework based on AffinityNet to generate accurate segmentation labels of training images given their image-level class labels only. A segmentation network learned with our synthesized labels outperforms previous state-of-the-arts by large margins on the PASCAL VOC 2012.
 
->*Our code was first implemented in Tensorflow at the time of CVPR 2018 submssion, and later we migrated to PyTorch. Minor details have been changed since then.
+>*We are preparing to release the full source code of our follow-up study of this project. This will include a more efficient and effective module for semantic propagation, and much more! **Hence, this repository will be deprecated.**
+
+>*Our code was first implemented in Tensorflow at the time of CVPR 2018 submssion, and later we migrated to PyTorch. Some trivial details (optimizer, channel size, and etc.) have been changed.
 
 ## Citation
-
+If you find the code useful, please consider citing our paper using the following BibTeX entry.
 ```
 @InProceedings{Ahn_2018_CVPR,
 author = {Ahn, Jiwoon and Kwak, Suha},
@@ -24,10 +26,11 @@ year = {2018}
 ```
 
 ## Prerequisite
-* PyTorch 0.4 and Torchvision
-* PASCAL VOC 2012 Dataset
-* (Optional) Caffe and VGG-16 pretrained weights [[vgg16_20M.caffemodel]](http://liangchiehchen.com/projects/Init%20Models.html)
-* (Optional) Mxnet and ResNet-38 pretrained weights [[ilsvrc-cls_rna-a1_cls1000_ep-0001.params]](https://github.com/itijyou/ademxapp)
+* Tested on Ubuntu 16.04, with Python 3.5, PyTorch 0.4, Torchvision 0.2.1, CUDA 9.0, and 1x NVIDIA TITAN X (Pascal).
+* [The PASCAL VOC 2012 development kit](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/):
+You also need to specify the path ('voc12_root') of your downloaded dev kit.
+* (Optional) If you want to try with the VGG-16 based network, PyCaffe and VGG-16 ImageNet pretrained weights [[vgg16_20M.caffemodel]](http://liangchiehchen.com/projects/Init%20Models.html)
+* (Optional) If you want to try with the ResNet-38 based network, Mxnet and ResNet-38 pretrained weights [[ilsvrc-cls_rna-a1_cls1000_ep-0001.params]](https://github.com/itijyou/ademxapp)
 
 ## Usage
 #### 1. Train a classification network to get CAMs.
