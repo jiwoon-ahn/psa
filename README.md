@@ -9,7 +9,7 @@ Learning Pixel-level Semantic Affinity with Image-level Supervision for Weakly S
 
 We have developed a framework based on AffinityNet to generate accurate segmentation labels of training images given their image-level class labels only. A segmentation network learned with our synthesized labels outperforms previous state-of-the-arts by large margins on the PASCAL VOC 2012.
 
->*We are preparing to release the full source code of our follow-up study of this project. This will include a more efficient and effective module for semantic propagation, and much more! **Hence, this repository will be deprecated.**
+>*We are preparing to release the full [code](https://github.com/jiwoon-ahn/irn) of our follow-up CVPR 2019 paper of this project. This will include a more efficient and effective module for semantic propagation, and much more! **Hence, this repository will be deprecated.**
 
 >*Our code was first implemented in Tensorflow at the time of CVPR 2018 submssion, and later we migrated to PyTorch. Some trivial details (optimizer, channel size, and etc.) have been changed.
 
