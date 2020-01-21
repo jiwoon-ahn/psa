@@ -1,6 +1,6 @@
 # Learning Pixel-level Semantic Affinity with Image-level Supervision
 
-**This code is deprecated. Please see https://github.com/jiwoon-ahn/irn_v2 instead.**
+**This code is deprecated. Please see https://github.com/jiwoon-ahn/irn instead.**
 
 ![outline](fig_outline.png)
 ## Introduction
