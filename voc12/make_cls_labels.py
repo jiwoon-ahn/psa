@@ -1,6 +1,8 @@
 import argparse
-import voc12.data
+
 import numpy as np
+
+from psa.voc12 import data
 
 if __name__ == '__main__':
 
@@ -11,9 +13,9 @@ if __name__ == '__main__':
     parser.add_argument("--voc12_root", required=True, type=str)
     args = parser.parse_args()
 
-    img_name_list = voc12.data.load_img_name_list(args.train_list)
-    img_name_list.extend(voc12.data.load_img_name_list(args.val_list))
-    label_list = voc12.data.load_image_label_list_from_xml(img_name_list, args.voc12_root)
+    img_name_list = data.load_img_name_list(args.train_list)
+    img_name_list.extend(data.load_img_name_list(args.val_list))
+    label_list = data.load_image_label_list_from_xml(img_name_list, args.voc12_root)
 
     d = dict()
     for img_name, label in zip(img_name_list, label_list):

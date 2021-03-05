@@ -2,9 +2,10 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-import network.vgg16d
+from psa.network import vgg16d
 
-class Net(network.vgg16d.Net):
+
+class Net(vgg16d.Net):
 
     def __init__(self):
         super(Net, self).__init__()

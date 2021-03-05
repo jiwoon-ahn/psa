@@ -1,8 +1,8 @@
-import torch
-from torch import nn
 import numpy as np
-
+import torch
 import torch.nn.functional as F
+from torch import nn
+
 
 class ResBlock(nn.Module):
     def __init__(self, in_channels, mid_channels, out_channels, stride=1, first_dilation=None, dilation=1):
@@ -51,6 +51,7 @@ class ResBlock(nn.Module):
     def __call__(self, x, get_x_bn_relu=False):
         return self.forward(x, get_x_bn_relu=get_x_bn_relu)
 
+
 class ResBlock_bot(nn.Module):
     def __init__(self, in_channels, out_channels, stride=1, dilation=1, dropout=0.):
         super(ResBlock_bot, self).__init__()
@@ -58,15 +59,16 @@ class ResBlock_bot(nn.Module):
         self.same_shape = (in_channels == out_channels and stride == 1)
 
         self.bn_branch2a = nn.BatchNorm2d(in_channels)
-        self.conv_branch2a = nn.Conv2d(in_channels, out_channels//4, 1, stride, bias=False)
+        self.conv_branch2a = nn.Conv2d(in_channels, out_channels // 4, 1, stride, bias=False)
 
-        self.bn_branch2b1 = nn.BatchNorm2d(out_channels//4)
+        self.bn_branch2b1 = nn.BatchNorm2d(out_channels // 4)
         self.dropout_2b1 = torch.nn.Dropout2d(dropout)
-        self.conv_branch2b1 = nn.Conv2d(out_channels//4, out_channels//2, 3, padding=dilation, dilation=dilation, bias=False)
+        self.conv_branch2b1 = nn.Conv2d(out_channels // 4, out_channels // 2, 3, padding=dilation, dilation=dilation,
+                                        bias=False)
 
-        self.bn_branch2b2 = nn.BatchNorm2d(out_channels//2)
+        self.bn_branch2b2 = nn.BatchNorm2d(out_channels // 2)
         self.dropout_2b2 = torch.nn.Dropout2d(dropout)
-        self.conv_branch2b2 = nn.Conv2d(out_channels//2, out_channels, 1, bias=False)
+        self.conv_branch2b2 = nn.Conv2d(out_channels // 2, out_channels, 1, bias=False)
 
         if not self.same_shape:
             self.conv_branch1 = nn.Conv2d(in_channels, out_channels, 1, stride, bias=False)
@@ -101,9 +103,9 @@ class ResBlock_bot(nn.Module):
     def __call__(self, x, get_x_bn_relu=False):
         return self.forward(x, get_x_bn_relu=get_x_bn_relu)
 
-class Normalize():
-    def __init__(self, mean = (0.485, 0.456, 0.406), std = (0.229, 0.224, 0.225)):
 
+class Normalize():
+    def __init__(self, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)):
         self.mean = mean
         self.std = std
 
@@ -116,6 +118,7 @@ class Normalize():
         proc_img[..., 2] = (imgarr[..., 2] / 255. - self.mean[2]) / self.std[2]
 
         return proc_img
+
 
 class Net(nn.Module):
     def __init__(self):
@@ -187,7 +190,6 @@ class Net(nn.Module):
 
         return dict({'conv4': conv4, 'conv5': conv5, 'conv6': conv6})
 
-
     def train(self, mode=True):
 
         super().train(mode)
@@ -211,6 +213,7 @@ class Net(nn.Module):
                 layer.weight.requires_grad = False
 
         return
+
 
 def convert_mxnet_to_torch(filename):
     import mxnet
@@ -261,4 +264,3 @@ def convert_mxnet_to_torch(filename):
             renamed_dict['bn7.' + last_name] = v
 
     return renamed_dict
-

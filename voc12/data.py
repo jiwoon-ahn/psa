@@ -1,27 +1,28 @@
+import os.path
 
+import PIL.Image
 import numpy as np
+import scipy.misc
 import torch
 from torch.utils.data import Dataset
-import PIL.Image
-import os.path
-import scipy.misc
 
 IMG_FOLDER_NAME = "JPEGImages"
 ANNOT_FOLDER_NAME = "Annotations"
 
 CAT_LIST = ['aeroplane', 'bicycle', 'bird', 'boat',
-        'bottle', 'bus', 'car', 'cat', 'chair',
-        'cow', 'diningtable', 'dog', 'horse',
-        'motorbike', 'person', 'pottedplant',
-        'sheep', 'sofa', 'train',
-        'tvmonitor']
+            'bottle', 'bus', 'car', 'cat', 'chair',
+            'cow', 'diningtable', 'dog', 'horse',
+            'motorbike', 'person', 'pottedplant',
+            'sheep', 'sofa', 'train',
+            'tvmonitor']
 
-CAT_NAME_TO_NUM = dict(zip(CAT_LIST,range(len(CAT_LIST))))
+CAT_NAME_TO_NUM = dict(zip(CAT_LIST, range(len(CAT_LIST))))
+
 
 def load_image_label_from_xml(img_name, voc12_root):
     from xml.dom import minidom
 
-    el_list = minidom.parse(os.path.join(voc12_root, ANNOT_FOLDER_NAME,img_name + '.xml')).getElementsByTagName('name')
+    el_list = minidom.parse(os.path.join(voc12_root, ANNOT_FOLDER_NAME, img_name + '.xml')).getElementsByTagName('name')
 
     multi_cls_lab = np.zeros((20), np.float32)
 
@@ -33,25 +34,27 @@ def load_image_label_from_xml(img_name, voc12_root):
 
     return multi_cls_lab
 
-def load_image_label_list_from_xml(img_name_list, voc12_root):
 
+def load_image_label_list_from_xml(img_name_list, voc12_root):
     return [load_image_label_from_xml(img_name, voc12_root) for img_name in img_name_list]
 
-def load_image_label_list_from_npy(img_name_list):
 
-    cls_labels_dict = np.load('voc12/cls_labels.npy').item()
+def load_image_label_list_from_npy(img_name_list, cls_label_path='psa/voc12/cls_labels.npy'):
+    cls_labels_dict = np.load(cls_label_path, allow_pickle=True).item()
 
     return [cls_labels_dict[img_name] for img_name in img_name_list]
+
 
 def get_img_path(img_name, voc12_root):
     return os.path.join(voc12_root, IMG_FOLDER_NAME, img_name + '.jpg')
 
-def load_img_name_list(dataset_path):
 
+def load_img_name_list(dataset_path):
     img_gt_name_list = open(dataset_path).read().splitlines()
     img_name_list = [img_gt_name.split(' ')[0][-15:-4] for img_gt_name in img_gt_name_list]
 
     return img_name_list
+
 
 class VOC12ImageDataset(Dataset):
 
@@ -76,9 +79,9 @@ class VOC12ImageDataset(Dataset):
 
 class VOC12ClsDataset(VOC12ImageDataset):
 
-    def __init__(self, img_name_list_path, voc12_root, transform=None):
+    def __init__(self, img_name_list_path, voc12_root, transform=None, cls_label_path='psa/voc12/cls_labels.npy'):
         super().__init__(img_name_list_path, voc12_root, transform)
-        self.label_list = load_image_label_list_from_npy(self.img_name_list)
+        self.label_list = load_image_label_list_from_npy(self.img_name_list, cls_label_path=cls_label_path)
 
     def __getitem__(self, idx):
         name, img = super().__getitem__(idx)
@@ -90,8 +93,9 @@ class VOC12ClsDataset(VOC12ImageDataset):
 
 class VOC12ClsDatasetMSF(VOC12ClsDataset):
 
-    def __init__(self, img_name_list_path, voc12_root, scales, inter_transform=None, unit=1):
-        super().__init__(img_name_list_path, voc12_root, transform=None)
+    def __init__(self, img_name_list_path, voc12_root, scales, inter_transform=None, unit=1,
+                 cls_label_path='psa/voc12/cls_labels.npy'):
+        super().__init__(img_name_list_path, voc12_root, transform=None, cls_label_path=cls_label_path)
         self.scales = scales
         self.unit = unit
         self.inter_transform = inter_transform
@@ -99,12 +103,13 @@ class VOC12ClsDatasetMSF(VOC12ClsDataset):
     def __getitem__(self, idx):
         name, img, label = super().__getitem__(idx)
 
-        rounded_size = (int(round(img.size[0]/self.unit)*self.unit), int(round(img.size[1]/self.unit)*self.unit))
+        rounded_size = (
+            int(round(img.size[0] / self.unit) * self.unit), int(round(img.size[1] / self.unit) * self.unit))
 
         ms_img_list = []
         for s in self.scales:
-            target_size = (round(rounded_size[0]*s),
-                           round(rounded_size[1]*s))
+            target_size = (round(rounded_size[0] * s),
+                           round(rounded_size[1] * s))
             s_img = img.resize(target_size, resample=PIL.Image.CUBIC)
             ms_img_list.append(s_img)
 
@@ -131,11 +136,11 @@ class ExtractAffinityLabelInRadius():
             self.search_dist.append((0, x))
 
         for y in range(1, radius):
-            for x in range(-radius+1, radius):
-                if x*x + y*y < radius*radius:
+            for x in range(-radius + 1, radius):
+                if x * x + y * y < radius * radius:
                     self.search_dist.append((y, x))
 
-        self.radius_floor = radius-1
+        self.radius_floor = radius - 1
 
         self.crop_height = cropsize - self.radius_floor
         self.crop_width = cropsize - 2 * self.radius_floor
@@ -150,7 +155,7 @@ class ExtractAffinityLabelInRadius():
         valid_pair_list = []
 
         for dy, dx in self.search_dist:
-            labels_to = label[dy:dy+self.crop_height, self.radius_floor+dx:self.radius_floor+dx+self.crop_width]
+            labels_to = label[dy:dy + self.crop_height, self.radius_floor + dx:self.radius_floor + dx + self.crop_width]
             labels_to = np.reshape(labels_to, [-1])
 
             valid_pair = np.logical_and(np.less(labels_to, 255), np.less(labels_from, 255))
@@ -166,11 +171,13 @@ class ExtractAffinityLabelInRadius():
 
         bg_pos_affinity_label = np.logical_and(pos_affinity_label, np.equal(bc_labels_from, 0)).astype(np.float32)
 
-        fg_pos_affinity_label = np.logical_and(np.logical_and(pos_affinity_label, np.not_equal(bc_labels_from, 0)), concat_valid_pair).astype(np.float32)
+        fg_pos_affinity_label = np.logical_and(np.logical_and(pos_affinity_label, np.not_equal(bc_labels_from, 0)),
+                                               concat_valid_pair).astype(np.float32)
 
         neg_affinity_label = np.logical_and(np.logical_not(pos_affinity_label), concat_valid_pair).astype(np.float32)
 
-        return torch.from_numpy(bg_pos_affinity_label), torch.from_numpy(fg_pos_affinity_label), torch.from_numpy(neg_affinity_label)
+        return torch.from_numpy(bg_pos_affinity_label), torch.from_numpy(fg_pos_affinity_label), torch.from_numpy(
+            neg_affinity_label)
 
 
 class VOC12AffDataset(VOC12ImageDataset):
@@ -187,7 +194,7 @@ class VOC12AffDataset(VOC12ImageDataset):
         self.img_transform_list = img_transform_list
         self.label_transform_list = label_transform_list
 
-        self.extract_aff_lab_func = ExtractAffinityLabelInRadius(cropsize=cropsize//8, radius=radius)
+        self.extract_aff_lab_func = ExtractAffinityLabelInRadius(cropsize=cropsize // 8, radius=radius)
 
     def __len__(self):
         return len(self.img_name_list)
@@ -199,8 +206,8 @@ class VOC12AffDataset(VOC12ImageDataset):
 
         label_ha_path = os.path.join(self.label_ha_dir, name + '.npy')
 
-        label_la = np.load(label_la_path).item()
-        label_ha = np.load(label_ha_path).item()
+        label_la = np.load(label_la_path, allow_pickle=True).item()
+        label_ha = np.load(label_ha_path, allow_pickle=True).item()
 
         label = np.array(list(label_la.values()) + list(label_ha.values()))
         label = np.transpose(label, (1, 2, 0))
@@ -226,7 +233,7 @@ class VOC12AffDataset(VOC12ImageDataset):
         label = label_la.copy()
         label[label_la == 0] = 255
         label[label_ha == 0] = 0
-        label[no_score_region] = 255 # mostly outer of cropped region
+        label[no_score_region] = 255  # mostly outer of cropped region
         label = self.extract_aff_lab_func(label)
 
         return img, label
@@ -245,7 +252,7 @@ class VOC12AffGtDataset(VOC12ImageDataset):
         self.img_transform_list = img_transform_list
         self.label_transform_list = label_transform_list
 
-        self.extract_aff_lab_func = ExtractAffinityLabelInRadius(cropsize=cropsize//8, radius=radius)
+        self.extract_aff_lab_func = ExtractAffinityLabelInRadius(cropsize=cropsize // 8, radius=radius)
 
     def __len__(self):
         return len(self.img_name_list)

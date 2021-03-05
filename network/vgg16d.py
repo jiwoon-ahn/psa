@@ -1,11 +1,11 @@
-import torch
-from torch import nn
 import numpy as np
+import torch
 import torch.nn.functional as F
+from torch import nn
+
 
 class Normalize():
-    def __init__(self, mean = (122.675, 116.669, 104.008)):
-
+    def __init__(self, mean=(122.675, 116.669, 104.008)):
         self.mean = mean
 
     def __call__(self, img):
@@ -18,34 +18,35 @@ class Normalize():
 
         return proc_img
 
+
 class Net(nn.Module):
-    def __init__(self, fc6_dilation = 1):
+    def __init__(self, fc6_dilation=1):
         super(Net, self).__init__()
 
-        self.conv1_1 = nn.Conv2d(3,64,3,padding = 1)
-        self.conv1_2 = nn.Conv2d(64,64,3,padding = 1)
-        self.pool1 = nn.MaxPool2d(kernel_size = 3, stride = 2, padding=1)
-        self.conv2_1 = nn.Conv2d(64,128,3,padding = 1)
-        self.conv2_2 = nn.Conv2d(128,128,3,padding = 1)
-        self.pool2 = nn.MaxPool2d(kernel_size = 3, stride = 2, padding=1)
-        self.conv3_1 = nn.Conv2d(128,256,3,padding = 1)
-        self.conv3_2 = nn.Conv2d(256,256,3,padding = 1)
-        self.conv3_3 = nn.Conv2d(256,256,3,padding = 1)
-        self.pool3 = nn.MaxPool2d(kernel_size = 3, stride = 2, padding=1)
-        self.conv4_1 = nn.Conv2d(256,512,3,padding = 1)
-        self.conv4_2 = nn.Conv2d(512,512,3,padding = 1)
-        self.conv4_3 = nn.Conv2d(512,512,3,padding = 1)
-        self.pool4 = nn.MaxPool2d(kernel_size = 3, stride = 1, padding=1)
-        self.conv5_1 = nn.Conv2d(512,512,3,padding = 2, dilation = 2)
-        self.conv5_2 = nn.Conv2d(512,512,3,padding = 2, dilation = 2)
-        self.conv5_3 = nn.Conv2d(512,512,3,padding = 2, dilation = 2)
-        self.pool5 = nn.MaxPool2d(kernel_size = 3, stride = 1, padding=1)
-        self.pool5a = nn.AvgPool2d(kernel_size = 3, stride = 1, padding=1)
+        self.conv1_1 = nn.Conv2d(3, 64, 3, padding=1)
+        self.conv1_2 = nn.Conv2d(64, 64, 3, padding=1)
+        self.pool1 = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
+        self.conv2_1 = nn.Conv2d(64, 128, 3, padding=1)
+        self.conv2_2 = nn.Conv2d(128, 128, 3, padding=1)
+        self.pool2 = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
+        self.conv3_1 = nn.Conv2d(128, 256, 3, padding=1)
+        self.conv3_2 = nn.Conv2d(256, 256, 3, padding=1)
+        self.conv3_3 = nn.Conv2d(256, 256, 3, padding=1)
+        self.pool3 = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
+        self.conv4_1 = nn.Conv2d(256, 512, 3, padding=1)
+        self.conv4_2 = nn.Conv2d(512, 512, 3, padding=1)
+        self.conv4_3 = nn.Conv2d(512, 512, 3, padding=1)
+        self.pool4 = nn.MaxPool2d(kernel_size=3, stride=1, padding=1)
+        self.conv5_1 = nn.Conv2d(512, 512, 3, padding=2, dilation=2)
+        self.conv5_2 = nn.Conv2d(512, 512, 3, padding=2, dilation=2)
+        self.conv5_3 = nn.Conv2d(512, 512, 3, padding=2, dilation=2)
+        self.pool5 = nn.MaxPool2d(kernel_size=3, stride=1, padding=1)
+        self.pool5a = nn.AvgPool2d(kernel_size=3, stride=1, padding=1)
 
-        self.fc6 = nn.Conv2d(512,1024, 3, padding = fc6_dilation, dilation = fc6_dilation)
+        self.fc6 = nn.Conv2d(512, 1024, 3, padding=fc6_dilation, dilation=fc6_dilation)
 
         self.drop6 = nn.Dropout2d(p=0.5)
-        self.fc7 = nn.Conv2d(1024,1024,1)
+        self.fc7 = nn.Conv2d(1024, 1024, 1)
 
         self.normalize = Normalize()
 
@@ -96,9 +97,9 @@ class Net(nn.Module):
         for layer in self.not_training:
 
             if isinstance(layer, torch.nn.Conv2d):
-
                 layer.weight.requires_grad = False
                 layer.bias.requires_grad = False
+
 
 def convert_caffe_to_torch(caffemodel_path, prototxt_path='network/vgg16_20M.prototxt'):
     import caffe
@@ -111,7 +112,3 @@ def convert_caffe_to_torch(caffemodel_path, prototxt_path='network/vgg16_20M.pro
         dict[caffe_name + '.bias'] = torch.from_numpy(caffe_model.params[caffe_name][1].data)
 
     return dict
-
-
-
-

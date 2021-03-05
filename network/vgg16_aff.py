@@ -1,12 +1,13 @@
 import torch
 import torch.nn as nn
-import torch.sparse as sparse
 import torch.nn.functional as F
-from tool import pyutils
+import torch.sparse as sparse
 
-import network.vgg16d
+from psa.network import vgg16d
+from psa.tool import pyutils
 
-class Net(network.vgg16d.Net):
+
+class Net(vgg16d.Net):
     def __init__(self):
         super(Net, self).__init__(fc6_dilation=4)
 
@@ -27,12 +28,13 @@ class Net(network.vgg16d.Net):
         self.not_training = [self.conv1_1, self.conv1_2, self.conv2_1, self.conv2_2]
         self.from_scratch_layers = [self.f8_3, self.f8_4, self.f8_5, self.f9]
 
-        self.predefined_featuresize = int(448//8)
-        self.ind_from, self.ind_to = pyutils.get_indices_of_pairs(5, (self.predefined_featuresize, self.predefined_featuresize))
-        self.ind_from = torch.from_numpy(self.ind_from); self.ind_to = torch.from_numpy(self.ind_to)
+        self.predefined_featuresize = int(448 // 8)
+        self.ind_from, self.ind_to = pyutils.get_indices_of_pairs(5, (
+            self.predefined_featuresize, self.predefined_featuresize))
+        self.ind_from = torch.from_numpy(self.ind_from);
+        self.ind_to = torch.from_numpy(self.ind_to)
 
         return
-
 
     def forward(self, x, to_dense=False):
 
@@ -50,7 +52,8 @@ class Net(network.vgg16d.Net):
             ind_to = self.ind_to
         else:
             ind_from, ind_to = pyutils.get_indices_of_pairs(5, (x.size(2), x.size(3)))
-            ind_from = torch.from_numpy(ind_from); ind_to = torch.from_numpy(ind_to)
+            ind_from = torch.from_numpy(ind_from);
+            ind_to = torch.from_numpy(ind_to)
 
         x = x.view(x.size(0), x.size(1), -1)
 
@@ -60,7 +63,7 @@ class Net(network.vgg16d.Net):
         ff = torch.unsqueeze(ff, dim=2)
         ft = ft.view(ft.size(0), ft.size(1), -1, ff.size(3))
 
-        aff = torch.exp(-torch.mean(torch.abs(ft-ff), dim=1))
+        aff = torch.exp(-torch.mean(torch.abs(ft - ff), dim=1))
 
         if to_dense:
             aff = aff.view(-1).cpu()
@@ -73,7 +76,7 @@ class Net(network.vgg16d.Net):
             indices_id = torch.stack([torch.arange(0, area).long(), torch.arange(0, area).long()])
 
             aff_mat = sparse.FloatTensor(torch.cat([indices, indices_id, indices_tp], dim=1),
-                                      torch.cat([aff, torch.ones([area]), aff])).to_dense().cuda()
+                                         torch.cat([aff, torch.ones([area]), aff])).to_dense().cuda()
             return aff_mat
 
         else:
@@ -100,6 +103,3 @@ class Net(network.vgg16d.Net):
                         groups[1].append(m.bias)
 
         return groups
-
-
-

@@ -1,0 +1,19 @@
+cam_dir: ${hydra:runtime.cwd}/debug_outpus/psa/results/dev/cam/
+la_crf_dir: ${hydra:runtime.cwd}/debug_outpus/psa/results/dev/la_crf/
+ha_crf_dir: ${hydra:runtime.cwd}/debug_outpus/psa/results/dev/ha_crf/
+network: psa.network.resnet38_aff
+voc12_root: ${hydra:runtime.cwd}/data/raw/VOCdevkit/VOC2012
+weights: ${hydra:runtime.cwd}/models/psa/res38_aff.pth
+session_name: resnet38_aff
+train_list: ${hydra:runtime.cwd}/psa/voc12/dev.txt
+crop_size: 448
+cls_label_path: ${hydra:runtime.cwd}/psa/voc12/cls_labels.npy
+batch_size: 2
+num_workers: 4
+max_epoches: 1
+lr: 0.1
+wt_dec: 5e-4
+
+
+
+

@@ -1,0 +1,10 @@
+infer_list: ${hydra:runtime.cwd}/psa/voc12/dev.txt
+voc12_root: ${hydra:runtime.cwd}/data/raw/VOCdevkit/VOC2012
+weights: ${hydra:runtime.cwd}/models/psa/res38_aff.pth
+network: psa.network.resnet38_aff
+cam_dir: ${hydra:runtime.cwd}/debug_outpus/psa/results/dev/cam/
+out_rw: ${hydra:runtime.cwd}/debug_outpus/psa/results/dev/rw/
+num_workers: 4
+alpha: 16
+beta: 8
+logt: 8

@@ -2,10 +2,10 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-import network.resnet38d
+from psa.network import resnet38d
 
 
-class Net(network.resnet38d.Net):
+class Net(resnet38d.Net):
     def __init__(self):
         super().__init__()
 
@@ -16,7 +16,6 @@ class Net(network.resnet38d.Net):
 
         self.not_training = [self.conv1a, self.b2, self.b2_1, self.b2_2]
         self.from_scratch_layers = [self.fc8]
-
 
     def forward(self, x):
         x = super().forward(x)

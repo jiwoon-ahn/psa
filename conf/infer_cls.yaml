@@ -1,0 +1,12 @@
+infer_list: ${hydra:runtime.cwd}/psa/voc12/dev.txt
+voc12_root: ${hydra:runtime.cwd}/data/raw/VOCdevkit/VOC2012
+weights: ${hydra:runtime.cwd}/models/psa/res38_cls.pth
+cls_label_path: ${hydra:runtime.cwd}/psa/voc12/cls_labels.npy
+network: psa.network.resnet38_cls
+out_cam: ${hydra:runtime.cwd}/debug_outpus/psa/results/dev/cam/
+out_cam_pred: ${hydra:runtime.cwd}/debug_outpus/psa/results/dev/cam_pred/
+out_la_crf: ${hydra:runtime.cwd}/debug_outpus/psa/results/dev/la_crf/
+out_ha_crf: ${hydra:runtime.cwd}/debug_outpus/psa/results/dev/ha_crf/
+num_workers: 4
+low_alpha: 4
+high_alpha: 32
