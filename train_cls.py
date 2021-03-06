@@ -60,8 +60,13 @@ if __name__ == '__main__':
     parser.add_argument("--crop_size", default=448, type=int)
     parser.add_argument("--voc12_root", required=True, type=str)
     args = parser.parse_args()
-
-    model = getattr(importlib.import_module(args.network), 'Net')()
+    if args.network == "psa.network.resnet38_cls_wildcat":
+        model = getattr(importlib.import_module(args.network), 'Net')(kmax=1,
+                                                                      kmin=1,
+                                                                      alpha=0.7,
+                                                                      num_maps=4)
+    else:
+        model = getattr(importlib.import_module(args.network), 'Net')()
 
     pyutils.Logger(args.session_name + '.log')
 
@@ -106,21 +111,22 @@ if __name__ == '__main__':
     ], lr=args.lr, weight_decay=args.wt_dec, max_step=max_step)
 
     if args.weights[-7:] == '.params':
-        assert args.network == "network.resnet38_cls"
-        import network.resnet38d
+        assert args.network == "psa.network.resnet38_cls"
+        from psa.network import resnet38d
 
-        weights_dict = network.resnet38d.convert_mxnet_to_torch(args.weights)
+        weights_dict = resnet38d.convert_mxnet_to_torch(args.weights)
     elif args.weights[-11:] == '.caffemodel':
-        assert args.network == "network.vgg16_cls"
-        import network.vgg16d
+        assert args.network == "psa.network.vgg16_cls"
+        from psa.network import vgg16d
 
-        weights_dict = network.vgg16d.convert_caffe_to_torch(args.weights)
+        weights_dict = vgg16d.convert_caffe_to_torch(args.weights)
     else:
         if is_cuda_available:
             weights_dict = torch.load(args.weights)
         else:
             weights_dict = torch.load(args.weights, map_location=torch.device('cpu'))
-
+    if args.network == "psa.network.resnet38_cls_wildcat":
+        weights_dict.pop('fc8.weight')
     model.load_state_dict(weights_dict, strict=False)
     if is_cuda_available:
         model = torch.nn.DataParallel(model).cuda()
