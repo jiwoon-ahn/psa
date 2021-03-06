@@ -114,3 +114,17 @@ class Net(resnet38d.Net):
                         groups[1].append(m.bias)
 
         return groups
+
+
+if __name__ == '__main__':
+    from torchsummary import summary
+
+    summary(Net(), input_size=(3, 448, 448))
+
+    model = Net()
+    x = torch.rand([2, 3, 448, 448])
+    y = model.forward(x)
+
+    assert len(model.ind_from) == 2496
+    assert len(model.ind_to) == 84864
+    assert y.shape == (2, 34, 2496)

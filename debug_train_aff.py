@@ -81,10 +81,10 @@ def run_app(cfg: DictConfig) -> None:
 
         for iter, pack in enumerate(train_data_loader):
 
-            aff = model.forward(pack[0])
-            bg_label = pack[1][0]
-            fg_label = pack[1][1]
-            neg_label = pack[1][2]
+            aff = model.forward(pack[0])  # torch.Size([2, 3, 448, 448]), torch.Size([2, 34, 2496])
+            bg_label = pack[1][0]  # torch.Size([2, 34, 2496])
+            fg_label = pack[1][1]  # torch.Size([2, 34, 2496])
+            neg_label = pack[1][2]  # torch.Size([2, 34, 2496])
 
             bg_count = torch.sum(bg_label) + 1e-5
             fg_count = torch.sum(fg_label) + 1e-5

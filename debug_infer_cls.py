@@ -46,11 +46,13 @@ def run_app(cfg: DictConfig) -> None:
         orig_img_size = orig_img.shape[:2]
 
         cam_list = []
+        # using 4 different scale with also flipped version of each.
         for i, img in enumerate(img_list):
             with torch.no_grad():
                 cam = model.forward_cam(img)
                 cam = F.upsample(cam, orig_img_size, mode='bilinear', align_corners=False)[0]
                 cam = cam.cpu().numpy() * label.clone().view(20, 1, 1).numpy()
+                # Fix the flipped image
                 if i % 2 == 1:
                     cam = np.flip(cam, axis=-1)
                 cam_list.append(cam)

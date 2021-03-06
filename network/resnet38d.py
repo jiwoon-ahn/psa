@@ -10,7 +10,8 @@ class ResBlock(nn.Module):
 
         self.same_shape = (in_channels == out_channels and stride == 1)
 
-        if first_dilation == None: first_dilation = dilation
+        if first_dilation is None:
+            first_dilation = dilation
 
         self.bn_branch2a = nn.BatchNorm2d(in_channels)
 
@@ -264,3 +265,14 @@ def convert_mxnet_to_torch(filename):
             renamed_dict['bn7.' + last_name] = v
 
     return renamed_dict
+
+
+if __name__ == '__main__':
+    from torchsummary import summary
+
+    summary(Net(), input_size=(3, 448, 448))
+
+    model = Net()
+    x = torch.rand([2, 3, 448, 448])
+    y = model.forward(x)
+    assert y.shape == (2, 4096, 56, 56)

@@ -1,4 +1,3 @@
-cam_dir: ${hydra:runtime.cwd}/debug_outpus/psa/results/dev/cam/
 la_crf_dir: ${hydra:runtime.cwd}/debug_outpus/psa/results/dev/la_crf/
 ha_crf_dir: ${hydra:runtime.cwd}/debug_outpus/psa/results/dev/ha_crf/
 network: psa.network.resnet38_aff

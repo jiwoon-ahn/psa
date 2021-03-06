@@ -33,6 +33,7 @@ class Net(resnet38d.Net):
         x = super().forward(x)
 
         x = F.conv2d(x, self.fc8.weight)
+        ## Doing this to not use bias values
         x = F.relu(x)
 
         return x
@@ -58,3 +59,17 @@ class Net(resnet38d.Net):
                         groups[1].append(m.bias)
 
         return groups
+
+
+if __name__ == '__main__':
+    from torchsummary import summary
+
+    summary(Net(), input_size=(3, 448, 448))
+
+    model = Net()
+    x = torch.rand([2, 3, 448, 448])
+    y = model.forward(x)
+    model.eval()
+    cam = model.forward_cam(x)
+    assert y.shape == (2, 20)
+    assert cam.shape == (2, 20, 56, 56)
